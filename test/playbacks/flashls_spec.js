@@ -1,4 +1,4 @@
-import { Events } from 'clappr'
+import { Events } from '@clappr/core'
 
 import FlasHLS from '../../src/playbacks/flashls/flashls.js'
 

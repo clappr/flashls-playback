@@ -1,4 +1,4 @@
-import { Mediator } from 'clappr'
+import { Mediator } from '@clappr/core'
 
 export default class HLSEvents {
   constructor(instanceId) {
