@@ -12,12 +12,28 @@ const minimize = !!process.env.MINIMIZE
 const analyzeBundle = !!process.env.ANALYZE_BUNDLE
 const forceInlineDebug = !!process.env.CLAPPR_INLINE_DEBUG
 
+const externals = {
+  '@clappr/core': {
+    amd: '@clappr/core',
+    commonjs: '@clappr/core',
+    commonjs2: '@clappr/core',
+    root: 'Clappr'
+  },
+  '@clappr/flash-playback': {
+    amd: '@clappr/flash-playback',
+    commonjs: '@clappr/flash-playback',
+    commonjs2: '@clappr/flash-playback',
+    root: 'ClapprFlash'
+  }
+}
+
 let configurations = []
 
 configurations.push(webpackConfig({
   filename: `${packageName}.js`,
   plugins: analyzeBundle ? [ new BundleAnalyzerPlugin() ] : [],
-  mode: 'development'
+  mode: 'development',
+  externals,
 }))
 
 const loaderOptions = new webpack.LoaderOptionsPlugin({ minimize, debug: !minimize })
@@ -45,7 +61,8 @@ if (minimize) {
         uglify,
       ],
     },
-    mode: 'production'
+    mode: 'production',
+    externals,
   }))
 }
 
@@ -57,7 +74,8 @@ if (forceInlineDebug) {
     plugins: [
       loaderOptions,
     ],
-    mode: 'development'
+    mode: 'development',
+    externals,
   }))
 }
 
