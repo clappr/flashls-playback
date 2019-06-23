@@ -12,13 +12,19 @@ const minimize = !!process.env.MINIMIZE
 const analyzeBundle = !!process.env.ANALYZE_BUNDLE
 const forceInlineDebug = !!process.env.CLAPPR_INLINE_DEBUG
 
-const externals = {
-  '@clappr/core': {
-    amd: '@clappr/core',
-    commonjs: '@clappr/core',
-    commonjs2: '@clappr/core',
-    root: 'Clappr'
-  },
+const externals = () => {
+  return {
+    '@clappr/core': {
+      amd: '@clappr/core',
+      commonjs: '@clappr/core',
+      commonjs2: '@clappr/core',
+      root: 'Clappr'
+    }
+  }
+}
+
+const customExt = {
+  ...externals(),
   '@clappr/flash-playback': {
     amd: '@clappr/flash-playback',
     commonjs: '@clappr/flash-playback',
@@ -33,7 +39,14 @@ configurations.push(webpackConfig({
   filename: `${packageName}.js`,
   plugins: analyzeBundle ? [ new BundleAnalyzerPlugin() ] : [],
   mode: 'development',
-  externals,
+  externals: externals(),
+}))
+
+configurations.push(webpackConfig({
+  filename: `${packageName}.external.js`,
+  plugins: analyzeBundle ? [ new BundleAnalyzerPlugin() ] : [],
+  mode: 'development',
+  externals: customExt,
 }))
 
 const loaderOptions = new webpack.LoaderOptionsPlugin({ minimize, debug: !minimize })
@@ -62,7 +75,21 @@ if (minimize) {
       ],
     },
     mode: 'production',
-    externals,
+    externals: externals(),
+  }))
+
+  configurations.push(webpackConfig({
+    filename: `${packageName}.external.min.js`,
+    plugins: [
+      loaderOptions,
+    ],
+    optimization: {
+      minimizer: [
+        uglify,
+      ],
+    },
+    mode: 'production',
+    externals: customExt,
   }))
 }
 
@@ -75,7 +102,17 @@ if (forceInlineDebug) {
       loaderOptions,
     ],
     mode: 'development',
-    externals,
+    externals: externals,
+  }))
+
+  configurations.push(webpackConfig({
+    filename: `${packageName}.external.debug.min.js`,
+    devtool: 'inline-source-map',
+    plugins: [
+      loaderOptions,
+    ],
+    mode: 'development',
+    externals: customExt,
   }))
 }
 
