@@ -3,6 +3,7 @@
   "version": "0.3.6",
   "description": "Clappr FlasHLS playback",
   "main": "./dist/flashls-playback.js",
+  "module": "./src/flashls.js",
   "scripts": {
     "bundle-check": "ANALYZE_BUNDLE=true ./node_modules/.bin/webpack -p",
     "release": "MINIMIZE=true ./node_modules/.bin/webpack --progress",

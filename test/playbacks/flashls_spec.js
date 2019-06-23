@@ -1,6 +1,6 @@
 import { Events } from '@clappr/core'
 
-import FlasHLS from '../../src/playbacks/flashls/flashls.js'
+import FlasHLS from '../../src/flashls.js'
 
 describe('HLS playback', function() {
   describe('#setPlaybackState', function() {
