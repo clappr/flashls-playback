@@ -2,6 +2,16 @@
 # yarn lockfile v1
 
 
+"@clappr/core@^0.3.8":
+  version "0.3.8"
+  resolved "https://registry.yarnpkg.com/@clappr/core/-/core-0.3.8.tgz#d36f3a506f751a33681dd87e1ea4d2f882ecf65d"
+  integrity sha512-H5Pa7KoY7KfUxXgev3wwVYf2oey5CvZgTm1cwGC2l7Ev8AjrAK3VtfjzKcueFA2P1UvZwYJmbor/+ubQ/oiFcQ==
+
+"@clappr/flash-playback@^0.3.7":
+  version "0.3.7"
+  resolved "https://registry.yarnpkg.com/@clappr/flash-playback/-/flash-playback-0.3.7.tgz#7381a49f7a400aa4601f6985f5a928dd2b4ac17b"
+  integrity sha512-9Zeqp1XduinJbb9UxulDARsuxsBsnCC4wM3+CCe0oVFLrVEt7iBKqrBoM2wzLvPpWmVxUnWN6v0H+MjLULNWXQ==
+
 "@sinonjs/formatio@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/formatio/-/formatio-2.0.0.tgz#84db7e9eb5531df18a8c5e0bfb6e449e55e654b2"

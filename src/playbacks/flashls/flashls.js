@@ -2,17 +2,11 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-import BaseFlashPlayback from '../../playbacks/base_flash_playback'
-import Events from '../../base/events'
-import template from '../../base/template'
-import Playback from '../../base/playback'
-import Mediator from '../../components/mediator'
-import Browser from '../../components/browser'
-import PlayerError from '../../components/error'
+import { Browser, Events, Mediator, Playback, PlayerError, template, $ } from '@clappr/core'
+import { BaseFlashPlayback } from '@clappr/flash-playback'
+
 import HLSEvents from './flashls_events'
 import hlsSwf from './public/HLSPlayer.swf'
-import $ from 'clappr-zepto'
-
 
 const MAX_ATTEMPTS = 60
 const AUTO = -1

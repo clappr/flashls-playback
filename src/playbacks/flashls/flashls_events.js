@@ -1,4 +1,4 @@
-import Mediator from '../../components/mediator'
+import { Mediator } from 'clappr'
 
 export default class HLSEvents {
   constructor(instanceId) {
@@ -53,4 +53,3 @@ export default class HLSEvents {
     Mediator.trigger(`${this.instanceId}:audiotrackchanged`, trackId)
   }
 }
-

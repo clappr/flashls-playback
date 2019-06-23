@@ -27,15 +27,8 @@ const webpackConfig = (config) => {
           exclude: [path.resolve(__dirname, './node_modules')]
         },
         {
-          test: /fonts\.css$/,
-          loaders: ['css-loader', 'postcss-loader'],
-          include: path.resolve(__dirname, 'src/components/core/public')
-        },
-        {
           test: /\.scss$/,
-          loaders: ['style-loader?singleton=true', 'css-loader', 'postcss-loader', 'sass-loader?includePaths[]='
-            + path.resolve(__dirname, './src/base/scss')
-          ],
+          loaders: ['style-loader?singleton=true', 'css-loader', 'postcss-loader', 'sass-loader'],
           include: path.resolve(__dirname, 'src')
         },
         {
@@ -47,18 +40,12 @@ const webpackConfig = (config) => {
           },
         },
         {
-          test: /\.svg/, loader: 'svg-inline-loader'
-        },
-        {
           test: /\.html/, loader: 'html-loader?minimize=false'
         },
         ...(config.rules || [])
       ],
     },
     resolve: {
-      alias: {
-        'clappr-zepto': 'clappr-zepto/zepto.js'
-      },
       plugins: [
         new DirectoryNamedWebpackPlugin(true),
       ],
@@ -68,13 +55,12 @@ const webpackConfig = (config) => {
       path: path.resolve(__dirname, 'dist'),
       publicPath: 'dist/',
       filename: config.filename,
-      library: 'Clappr',
+      library: 'ClapprFlash',
       libraryTarget: 'umd'
     },
     plugins: [
       new webpack.DefinePlugin({
         VERSION: JSON.stringify(require('./package.json').version),
-        PLAIN_HTML5_ONLY: JSON.stringify(!!process.env.CLAPPR_PLAIN_HTML5_ONLY)
       }),
       ...(config.plugins || [])
     ],
