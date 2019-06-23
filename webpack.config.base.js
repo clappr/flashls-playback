@@ -55,7 +55,7 @@ const webpackConfig = (config) => {
       path: path.resolve(__dirname, 'dist'),
       publicPath: 'dist/',
       filename: config.filename,
-      library: 'ClapprFlash',
+      library: 'ClapprFlashls',
       libraryTarget: 'umd'
     },
     plugins: [
