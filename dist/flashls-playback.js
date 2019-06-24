@@ -2725,7 +2725,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-var version = "0.3.7";
+var version = "0.3.8";
 
 exports.default = {
   BaseFlashPlayback: _base_flash_playback2.default,
@@ -5253,7 +5253,7 @@ var FlasHLS = function (_BaseFlashPlayback) {
   }], [{
     key: 'version',
     get: function get() {
-      return "0.3.6";
+      return "0.3.7";
     }
   }]);
 

@@ -2110,7 +2110,7 @@ var FlasHLS = function (_BaseFlashPlayback) {
   }], [{
     key: 'version',
     get: function get() {
-      return "0.3.6";
+      return "0.3.7";
     }
   }]);
 

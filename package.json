@@ -1,6 +1,6 @@
 {
   "name": "@clappr/flashls-playback",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Clappr FlasHLS playback",
   "main": "./dist/flashls-playback.js",
   "module": "./src/flashls.js",
