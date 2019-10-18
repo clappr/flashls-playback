@@ -1,55 +1,56 @@
-import { Mediator } from '@clappr/core'
+import { BaseObject } from '@clappr/core'
 
-export default class HLSEvents {
-  constructor(instanceId) {
-    this.instanceId = instanceId
+export default class HLSEvents extends BaseObject {
+  constructor(playback) {
+    super()
+    this.playback = playback
   }
   ready() {
-    Mediator.trigger(`${this.instanceId}:flashready`)
+    this.trigger('flashready')
   }
   videoSize(width, height) {
-    Mediator.trigger(`${this.instanceId}:videosizechanged`, width, height)
+    this.trigger('videosizechanged', width, height)
   }
   complete() {
-    Mediator.trigger(`${this.instanceId}:complete`)
+    this.trigger('complete')
   }
   error(code, url, message) {
-    Mediator.trigger(`${this.instanceId}:error`, code, url, message)
+    this.trigger('error', code, url, message)
   }
   manifest(duration, loadmetrics) {
-    Mediator.trigger(`${this.instanceId}:manifestloaded`, duration, loadmetrics)
+    this.trigger('manifestloaded', duration, loadmetrics)
   }
   audioLevelLoaded(loadmetrics) {
-    Mediator.trigger(`${this.instanceId}:audiolevelloaded`, loadmetrics)
+    this.trigger('audiolevelloaded', loadmetrics)
   }
   levelLoaded(loadmetrics) {
-    Mediator.trigger(`${this.instanceId}:levelloaded`, loadmetrics)
+    this.trigger('levelloaded', loadmetrics)
   }
   levelEndlist(level) {
-    Mediator.trigger(`${this.instanceId}:levelendlist`, level)
+    this.trigger('levelendlist', level)
   }
   fragmentLoaded(loadmetrics) {
-    Mediator.trigger(`${this.instanceId}:fragmentloaded`, loadmetrics)
+    this.trigger('fragmentloaded', loadmetrics)
   }
   fragmentPlaying(playmetrics) {
-    Mediator.trigger(`${this.instanceId}:fragmentplaying`, playmetrics)
+    this.trigger('fragmentplaying', playmetrics)
   }
   position(timemetrics) {
-    Mediator.trigger(`${this.instanceId}:timeupdate`, timemetrics)
+    this.trigger('timeupdate', timemetrics)
   }
   state(newState) {
-    Mediator.trigger(`${this.instanceId}:playbackstate`, newState)
+    this.trigger('playbackstate', newState)
   }
   seekState(newState) {
-    Mediator.trigger(`${this.instanceId}:seekstate`, newState)
+    this.trigger('seekstate', newState)
   }
   switch(newLevel) {
-    Mediator.trigger(`${this.instanceId}:levelchanged`, newLevel)
+    this.trigger('levelchanged', newLevel)
   }
   audioTracksListChange(trackList) {
-    Mediator.trigger(`${this.instanceId}:audiotracklistchanged`, trackList)
+    this.trigger('audiotracklistchanged', trackList)
   }
   audioTrackChange(trackId) {
-    Mediator.trigger(`${this.instanceId}:audiotrackchanged`, trackId)
+    this.trigger('audiotrackchanged', trackId)
   }
 }

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-import { Browser, Events, Mediator, Playback, PlayerError, template, $ } from '@clappr/core'
+import { Browser, Events, Playback, PlayerError, template, $ } from '@clappr/core'
 import { BaseFlashPlayback } from '@clappr/flash-playback'
 
 import HLSEvents from './flashls_events'
@@ -52,6 +52,7 @@ export default class FlasHLS extends BaseFlashPlayback {
 
   constructor(...args) {
     super(...args)
+    this._createCallbacks()
     this._src = this.options.src
     this._baseUrl = this.options.baseUrl
     this._initHlsParameters(this.options)
@@ -112,25 +113,13 @@ export default class FlasHLS extends BaseFlashPlayback {
   }
 
   _addListeners() {
-    Mediator.on(this.cid + ':flashready', () => this._bootstrap())
-    Mediator.on(this.cid + ':timeupdate', (timeMetrics) => this._updateTime(timeMetrics))
-    Mediator.on(this.cid + ':playbackstate', (state) => this._setPlaybackState(state))
-    Mediator.on(this.cid + ':levelchanged', (level) => this._levelChanged(level))
-    Mediator.on(this.cid + ':error', (code, url, message) => this._flashPlaybackError(code, url, message))
-    Mediator.on(this.cid + ':fragmentloaded',(loadmetrics) => this._onFragmentLoaded(loadmetrics))
-    Mediator.on(this.cid + ':levelendlist', (level) => this._onLevelEndlist(level))
-  }
-
-  stopListening() {
-    super.stopListening()
-    Mediator.off(this.cid + ':flashready')
-    Mediator.off(this.cid + ':timeupdate')
-    Mediator.off(this.cid + ':playbackstate')
-    Mediator.off(this.cid + ':levelchanged')
-    Mediator.off(this.cid + ':playbackerror')
-    Mediator.off(this.cid + ':fragmentloaded')
-    Mediator.off(this.cid + ':manifestloaded')
-    Mediator.off(this.cid + ':levelendlist')
+    this.listenTo(this.flashlsEvents, 'flashready', this._bootstrap)
+    this.listenTo(this.flashlsEvents, 'timeupdate', this._updateTime)
+    this.listenTo(this.flashlsEvents, 'playbackstate', this._setPlaybackState)
+    this.listenTo(this.flashlsEvents, 'levelchanged', this._levelChanged)
+    this.listenTo(this.flashlsEvents, 'error', this._flashPlaybackError)
+    this.listenTo(this.flashlsEvents, 'fragmentloaded', this._onFragmentLoaded)
+    this.listenTo(this.flashlsEvents, 'levelendlist', this._onLevelEndlist)
   }
 
   _bootstrap() {
@@ -549,7 +538,7 @@ export default class FlasHLS extends BaseFlashPlayback {
   _firstPlay() {
     this._shouldPlayOnManifestLoaded = true
     if (this.el.playerLoad) {
-      Mediator.once(this.cid + ':manifestloaded', (duration, loadmetrics) => this._manifestLoaded(duration, loadmetrics))
+      this.flashlsEvents.once('manifestloaded', (duration, loadmetrics) => this._manifestLoaded(duration, loadmetrics))
       this._setFlashSettings() //ensure flushLiveURLCache will work (#327)
       this.el.playerLoad(this._src)
       this._srcLoaded = true
@@ -673,6 +662,7 @@ export default class FlasHLS extends BaseFlashPlayback {
   destroy() {
     this.stopListening()
     this.$el.remove()
+    delete window.Clappr.flashlsCallbacks[this.cid]
   }
 
   _updateSettings() {
@@ -698,7 +688,7 @@ export default class FlasHLS extends BaseFlashPlayback {
     if (!window.Clappr.flashlsCallbacks)
       window.Clappr.flashlsCallbacks = {}
 
-    this.flashlsEvents = new HLSEvents(this.cid)
+    this.flashlsEvents = new HLSEvents(this)
     window.Clappr.flashlsCallbacks[this.cid] = (eventName, args) => {
       this.flashlsEvents[eventName].apply(this.flashlsEvents, args)
     }
@@ -706,7 +696,6 @@ export default class FlasHLS extends BaseFlashPlayback {
 
   render() {
     super.render()
-    this._createCallbacks()
     return this
   }
 }
