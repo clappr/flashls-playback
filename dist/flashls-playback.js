@@ -5253,7 +5253,7 @@ var FlasHLS = function (_BaseFlashPlayback) {
   }], [{
     key: 'version',
     get: function get() {
-      return "0.3.7";
+      return "0.4.0";
     }
   }]);
 
@@ -5266,6 +5266,7 @@ var FlasHLS = function (_BaseFlashPlayback) {
 
     var _this = (0, _possibleConstructorReturn3.default)(this, _BaseFlashPlayback.call.apply(_BaseFlashPlayback, [this].concat(args)));
 
+    _this._createCallbacks();
     _this._src = _this.options.src;
     _this._baseUrl = _this.options.baseUrl;
     _this._initHlsParameters(_this.options);
@@ -5327,45 +5328,17 @@ var FlasHLS = function (_BaseFlashPlayback) {
   };
 
   FlasHLS.prototype._addListeners = function _addListeners() {
-    var _this2 = this;
-
-    _core.Mediator.on(this.cid + ':flashready', function () {
-      return _this2._bootstrap();
-    });
-    _core.Mediator.on(this.cid + ':timeupdate', function (timeMetrics) {
-      return _this2._updateTime(timeMetrics);
-    });
-    _core.Mediator.on(this.cid + ':playbackstate', function (state) {
-      return _this2._setPlaybackState(state);
-    });
-    _core.Mediator.on(this.cid + ':levelchanged', function (level) {
-      return _this2._levelChanged(level);
-    });
-    _core.Mediator.on(this.cid + ':error', function (code, url, message) {
-      return _this2._flashPlaybackError(code, url, message);
-    });
-    _core.Mediator.on(this.cid + ':fragmentloaded', function (loadmetrics) {
-      return _this2._onFragmentLoaded(loadmetrics);
-    });
-    _core.Mediator.on(this.cid + ':levelendlist', function (level) {
-      return _this2._onLevelEndlist(level);
-    });
-  };
-
-  FlasHLS.prototype.stopListening = function stopListening() {
-    _BaseFlashPlayback.prototype.stopListening.call(this);
-    _core.Mediator.off(this.cid + ':flashready');
-    _core.Mediator.off(this.cid + ':timeupdate');
-    _core.Mediator.off(this.cid + ':playbackstate');
-    _core.Mediator.off(this.cid + ':levelchanged');
-    _core.Mediator.off(this.cid + ':playbackerror');
-    _core.Mediator.off(this.cid + ':fragmentloaded');
-    _core.Mediator.off(this.cid + ':manifestloaded');
-    _core.Mediator.off(this.cid + ':levelendlist');
+    this.listenTo(this.flashlsEvents, 'flashready', this._bootstrap);
+    this.listenTo(this.flashlsEvents, 'timeupdate', this._updateTime);
+    this.listenTo(this.flashlsEvents, 'playbackstate', this._setPlaybackState);
+    this.listenTo(this.flashlsEvents, 'levelchanged', this._levelChanged);
+    this.listenTo(this.flashlsEvents, 'error', this._flashPlaybackError);
+    this.listenTo(this.flashlsEvents, 'fragmentloaded', this._onFragmentLoaded);
+    this.listenTo(this.flashlsEvents, 'levelendlist', this._onLevelEndlist);
   };
 
   FlasHLS.prototype._bootstrap = function _bootstrap() {
-    var _this3 = this;
+    var _this2 = this;
 
     if (this.el.playerLoad) {
       this.el.width = '100%';
@@ -5382,7 +5355,7 @@ var FlasHLS = function (_BaseFlashPlayback) {
       this._bootstrapAttempts = this._bootstrapAttempts || 0;
       if (++this._bootstrapAttempts <= MAX_ATTEMPTS) {
         setTimeout(function () {
-          return _this3._bootstrap();
+          return _this2._bootstrap();
         }, 50);
       } else {
         var formattedError = this.createError({
@@ -5759,12 +5732,12 @@ var FlasHLS = function (_BaseFlashPlayback) {
   };
 
   FlasHLS.prototype._firstPlay = function _firstPlay() {
-    var _this4 = this;
+    var _this3 = this;
 
     this._shouldPlayOnManifestLoaded = true;
     if (this.el.playerLoad) {
-      _core.Mediator.once(this.cid + ':manifestloaded', function (duration, loadmetrics) {
-        return _this4._manifestLoaded(duration, loadmetrics);
+      this.flashlsEvents.once('manifestloaded', function (duration, loadmetrics) {
+        return _this3._manifestLoaded(duration, loadmetrics);
       });
       this._setFlashSettings(); //ensure flushLiveURLCache will work (#327)
       this.el.playerLoad(this._src);
@@ -5773,10 +5746,10 @@ var FlasHLS = function (_BaseFlashPlayback) {
   };
 
   FlasHLS.prototype.volume = function volume(value) {
-    var _this5 = this;
+    var _this4 = this;
 
     if (this.isReady) this.el.playerVolume(value);else this.listenToOnce(this, _core.Events.PLAYBACK_BUFFERFULL, function () {
-      return _this5.volume(value);
+      return _this4.volume(value);
     });
   };
 
@@ -5880,6 +5853,7 @@ var FlasHLS = function (_BaseFlashPlayback) {
   FlasHLS.prototype.destroy = function destroy() {
     this.stopListening();
     this.$el.remove();
+    delete window.Clappr.flashlsCallbacks[this.cid];
   };
 
   FlasHLS.prototype._updateSettings = function _updateSettings() {
@@ -5896,21 +5870,20 @@ var FlasHLS = function (_BaseFlashPlayback) {
   };
 
   FlasHLS.prototype._createCallbacks = function _createCallbacks() {
-    var _this6 = this;
+    var _this5 = this;
 
     if (!window.Clappr) window.Clappr = {};
 
     if (!window.Clappr.flashlsCallbacks) window.Clappr.flashlsCallbacks = {};
 
-    this.flashlsEvents = new _flashls_events2.default(this.cid);
+    this.flashlsEvents = new _flashls_events2.default(this);
     window.Clappr.flashlsCallbacks[this.cid] = function (eventName, args) {
-      _this6.flashlsEvents[eventName].apply(_this6.flashlsEvents, args);
+      _this5.flashlsEvents[eventName].apply(_this5.flashlsEvents, args);
     };
   };
 
   FlasHLS.prototype.render = function render() {
     _BaseFlashPlayback.prototype.render.call(this);
-    this._createCallbacks();
     return this;
   };
 
@@ -5957,83 +5930,96 @@ var _classCallCheck2 = __webpack_require__(/*! babel-runtime/helpers/classCallCh
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
+var _possibleConstructorReturn2 = __webpack_require__(/*! babel-runtime/helpers/possibleConstructorReturn */ "./node_modules/babel-runtime/helpers/possibleConstructorReturn.js");
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = __webpack_require__(/*! babel-runtime/helpers/inherits */ "./node_modules/babel-runtime/helpers/inherits.js");
+
+var _inherits3 = _interopRequireDefault(_inherits2);
+
 var _core = __webpack_require__(/*! @clappr/core */ "@clappr/core");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var HLSEvents = function () {
-  function HLSEvents(instanceId) {
+var HLSEvents = function (_BaseObject) {
+  (0, _inherits3.default)(HLSEvents, _BaseObject);
+
+  function HLSEvents(playback) {
     (0, _classCallCheck3.default)(this, HLSEvents);
 
-    this.instanceId = instanceId;
+    var _this = (0, _possibleConstructorReturn3.default)(this, _BaseObject.call(this));
+
+    _this.playback = playback;
+    return _this;
   }
 
   HLSEvents.prototype.ready = function ready() {
-    _core.Mediator.trigger(this.instanceId + ':flashready');
+    this.trigger('flashready');
   };
 
   HLSEvents.prototype.videoSize = function videoSize(width, height) {
-    _core.Mediator.trigger(this.instanceId + ':videosizechanged', width, height);
+    this.trigger('videosizechanged', width, height);
   };
 
   HLSEvents.prototype.complete = function complete() {
-    _core.Mediator.trigger(this.instanceId + ':complete');
+    this.trigger('complete');
   };
 
   HLSEvents.prototype.error = function error(code, url, message) {
-    _core.Mediator.trigger(this.instanceId + ':error', code, url, message);
+    this.trigger('error', code, url, message);
   };
 
   HLSEvents.prototype.manifest = function manifest(duration, loadmetrics) {
-    _core.Mediator.trigger(this.instanceId + ':manifestloaded', duration, loadmetrics);
+    this.trigger('manifestloaded', duration, loadmetrics);
   };
 
   HLSEvents.prototype.audioLevelLoaded = function audioLevelLoaded(loadmetrics) {
-    _core.Mediator.trigger(this.instanceId + ':audiolevelloaded', loadmetrics);
+    this.trigger('audiolevelloaded', loadmetrics);
   };
 
   HLSEvents.prototype.levelLoaded = function levelLoaded(loadmetrics) {
-    _core.Mediator.trigger(this.instanceId + ':levelloaded', loadmetrics);
+    this.trigger('levelloaded', loadmetrics);
   };
 
   HLSEvents.prototype.levelEndlist = function levelEndlist(level) {
-    _core.Mediator.trigger(this.instanceId + ':levelendlist', level);
+    this.trigger('levelendlist', level);
   };
 
   HLSEvents.prototype.fragmentLoaded = function fragmentLoaded(loadmetrics) {
-    _core.Mediator.trigger(this.instanceId + ':fragmentloaded', loadmetrics);
+    this.trigger('fragmentloaded', loadmetrics);
   };
 
   HLSEvents.prototype.fragmentPlaying = function fragmentPlaying(playmetrics) {
-    _core.Mediator.trigger(this.instanceId + ':fragmentplaying', playmetrics);
+    this.trigger('fragmentplaying', playmetrics);
   };
 
   HLSEvents.prototype.position = function position(timemetrics) {
-    _core.Mediator.trigger(this.instanceId + ':timeupdate', timemetrics);
+    this.trigger('timeupdate', timemetrics);
   };
 
   HLSEvents.prototype.state = function state(newState) {
-    _core.Mediator.trigger(this.instanceId + ':playbackstate', newState);
+    this.trigger('playbackstate', newState);
   };
 
   HLSEvents.prototype.seekState = function seekState(newState) {
-    _core.Mediator.trigger(this.instanceId + ':seekstate', newState);
+    this.trigger('seekstate', newState);
   };
 
   HLSEvents.prototype.switch = function _switch(newLevel) {
-    _core.Mediator.trigger(this.instanceId + ':levelchanged', newLevel);
+    this.trigger('levelchanged', newLevel);
   };
 
   HLSEvents.prototype.audioTracksListChange = function audioTracksListChange(trackList) {
-    _core.Mediator.trigger(this.instanceId + ':audiotracklistchanged', trackList);
+    this.trigger('audiotracklistchanged', trackList);
   };
 
   HLSEvents.prototype.audioTrackChange = function audioTrackChange(trackId) {
-    _core.Mediator.trigger(this.instanceId + ':audiotrackchanged', trackId);
+    this.trigger('audiotrackchanged', trackId);
   };
 
   return HLSEvents;
-}();
+}(_core.BaseObject);
 
 exports.default = HLSEvents;
 module.exports = exports['default'];
